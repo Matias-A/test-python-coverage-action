@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  run-tests:
+    strategy:
+      matrix:
+        python-version: [3.10]
+        poetry-version: [1.1.13]
+        platform: [ubuntu-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Set up Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: ${{ matrix.poetry-version }}
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Run tests
+        run: poetry run coverage run --branch -m pytest ./tests 
+        
+      - name: Test coverage report
+        id: coverage_comment
+        uses: Matias-A/python-coverage-comment-action@feat/save-badge-svg
+        with:
+          GITHUB_TOKEN: ${{ github.token }}
+          INCLUDE_RAW_OUTPUT: true
+
+      - name: Store Pull Request comment to be posted
+        uses: actions/upload-artifact@v2
+        if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
+        with:
+          name: python-coverage-comment-action
+          path: python-coverage-comment-action.txt
