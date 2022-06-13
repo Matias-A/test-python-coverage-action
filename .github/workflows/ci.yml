@@ -32,7 +32,7 @@ jobs:
         
       - name: Test coverage report
         id: coverage_comment
-        uses: Matias-A/python-coverage-comment-action@feat/save-badge-svg
+        uses: Matias-A/python-coverage-comment-action@prod
         with:
           GITHUB_TOKEN: ${{ github.token }}
           INCLUDE_RAW_OUTPUT: true
